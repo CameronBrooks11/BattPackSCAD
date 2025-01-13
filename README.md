@@ -15,6 +15,7 @@ To get started simply import the libraries and start customizing:
 ```
 use <BattPackSCAD/battery_holder.scad>;
 use <BattPackSCAD/battery_lib.scad>;
+...
 ```
 
 <img src="images/design_top_view.PNG" alt="design_top_view" width="20%">
