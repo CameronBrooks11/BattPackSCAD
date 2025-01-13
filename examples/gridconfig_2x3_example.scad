@@ -34,10 +34,10 @@ translate([ -cell_separation / 2, 0, 0 ])
     color("DodgerBlue") BatteryLib_GenerateBatteryModel("18650");
     translate([ 0, 0, holder_height + zFite ]) rotate([ 0, 180, 0 ])
         battery_holder(cell_diameter = batt_dia, height = holder_height, thickness = holder_thickness,
-             connector_depth = conn_depth, tab_radius = tab_radius, tab_height = tab_height, cell_tolerance = tol,
-             conn_tolerance = tol, tabs = retaining_tabs, tie_slot = cable_tie_slots);
+                       connector_depth = conn_depth, tab_radius = tab_radius, tab_height = tab_height,
+                       cell_tolerance = tol, conn_tolerance = tol, tabs = retaining_tabs, tie_slot = cable_tie_slots);
     translate([ 0, 0, BatteryLib_TotalHeight("18650") - holder_height - zFite ])
         battery_holder(cell_diameter = batt_dia, height = holder_height, thickness = holder_thickness,
-             connector_depth = conn_depth, tab_radius = tab_radius, tab_height = tab_height, cell_tolerance = tol,
-             conn_tolerance = tol, tabs = retaining_tabs, tie_slot = cable_tie_slots);
+                       connector_depth = conn_depth, tab_radius = tab_radius, tab_height = tab_height,
+                       cell_tolerance = tol, conn_tolerance = tol, tabs = retaining_tabs, tie_slot = cable_tie_slots);
 }

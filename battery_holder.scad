@@ -31,8 +31,8 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
  * @param tabs Whether to include tabs for the battery
  * @param tie_slot Whether to include a slot for a cable tie
  */
-module battery_holder(cell_diameter, height, thickness, connector_depth, tab_radius, tab_height, cell_tolerance, conn_tolerance,
-            tabs = true, tie_slot = true)
+module battery_holder(cell_diameter, height, thickness, connector_depth, tab_radius, tab_height, cell_tolerance,
+                      conn_tolerance, tabs = true, tie_slot = true)
 {
     // base_width = cell_diameter + thickness * 2;
     base_width = cell_diameter + thickness;
@@ -114,7 +114,7 @@ module conns(base, width, depth, height, tolerance = 0, type = "male", tie_slot 
     }
     else
     {
-        translate([ 0, 0, -zFite / 2 ]) linear_extrude(height + zFite)
+        linear_extrude(height)
             polygon(shape_trapezium([ width - depth - tolerance, width - tolerance ], h = depth + zFite, corner_r = 0));
     }
 }
