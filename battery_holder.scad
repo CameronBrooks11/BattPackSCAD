@@ -20,76 +20,79 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
 
 /**
  * @brief Generate a single cell for a battery holder
- * @param cell_diameter Diameter of the battery cell
- * @param height Height of the cell
- * @param thickness Thickness of the cell
+ * @param diameter Diameter of the battery cell
+ * @param height Height of the battery cell
+ * @param wall_thickness Thickness of the battery holder
+ * @param retainer_thickness Thickness of the retainer
+ * @param retainer_radius Radius of the retainer
  * @param connector_depth Depth of the connector
- * @param tab_radius Radius of the tab
- * @param tab_height Height of the tab
+ * @param wire_cut Width of the wire cutout
  * @param cell_tolerance Tolerance for the cell
- * @param conn_tolerance Tolerance for the connector
- * @param tabs Whether to include tabs for the battery
+ * @param connector_tolerance Tolerance for the connector
+ * @param retainer Whether to include a retainer
  * @param tie_slot Whether to include a slot for a cable tie
  */
-module battery_holder(cell_diameter, height, thickness, connector_depth, tab_radius, tab_height, cell_tolerance,
-                      conn_tolerance, tabs = true, tie_slot = true)
+module battery_holder(diameter, height, wall_thickness, retainer_thickness, retainer_radius = undef,
+                      connector_depth = undef, wire_cut = undef, cell_tolerance = 0.2, connector_tolerance = 0.2,
+                      retainer = true, tie_slot = true)
 {
-    // base_width = cell_diameter + thickness * 2;
-    base_width = cell_diameter + thickness;
-    trap_width = base_width * 2 / 3; // Width of the trapezoid
-    trapezium_major = cell_diameter - thickness;
-    conn_shift = (base_width + connector_depth) / 2;
-    tab_radius = is_undef(tab_radius) ? thickness * 2 : tab_radius; // tab_radius radius
-    tab_height = is_undef(tab_height) ? thickness / 2 : tab_height; // tab_height holder_height
 
-    difference()
+    retainer_radius = is_undef(retainer_radius) ? diameter * 0.1 : retainer_radius; // retainer_radius radius
+    retainer_thickness =
+        is_undef(retainer_thickness) ? wall_thickness / 2 : retainer_thickness; // retainer_thickness holder_height
+    wire_cut = is_undef(wire_cut) ? (diameter - retainer_radius * 2) / 2 : wire_cut;
+    connector_depth = is_undef(connector_depth) ? wall_thickness : connector_depth;
+
+    // base_width = diameter + wall_thickness * 2;
+    base_width = diameter + wall_thickness;
+    trap_width = base_width * 2 / 3; // Width of the trapezoid
+    trapezium_major = diameter - wall_thickness;
+    conn_shift = (base_width + connector_depth) / 2;
+    total_height = height + retainer_thickness;
+
+    translate([ 0, 0, -retainer_thickness ]) difference()
     {
         union()
         {
-            // difference()
-            {
-                union()
-                {
-                    // main body
-                    translate([ 0, 0, height / 2 ]) cube([ base_width, base_width, height ], center = true);
 
-                    // tabs to hold the battery
-                    if (tabs)
-                        for (rotation = [45:90:325])
-                            rotate([ 0, 0, rotation ]) translate([ 0, cell_diameter / 2, 0 ])
-                            {
-                                translate([ 1, 0, height ]) cylinder(r = tab_radius, h = tab_height, $fn = 16);
-                            }
-                }
-                for (i = [0:1:3])
-                    translate([ 0, 0, height / 2 ]) cube([ base_width, base_width, height ], center = true);
-            }
+            // main body
+            translate([ 0, 0, total_height / 2 ])
+                cube([ base_width, base_width, height + retainer_thickness ], center = true);
 
-            // Connectors
-            // Generate the connectors between cells
+            // Cut out the connectors between cells
+            translate([ 0, conn_shift, 0 ])
+                dovetail_conn(base = base_width, width = trapezium_major, depth = connector_depth,
+                              height = total_height, type = "male");
 
-            translate([ 0, conn_shift, 0 ]) conns(base = base_width, width = trapezium_major, depth = connector_depth,
-                                                  height = height, type = "male");
-
-            rotate([ 0, 0, -90 ]) translate([ 0, conn_shift, 0 ]) conns(
-                base = base_width, width = trapezium_major, depth = connector_depth, height = height, type = "male");
+            rotate([ 0, 0, -90 ]) translate([ 0, conn_shift, 0 ])
+                dovetail_conn(base = base_width, width = trapezium_major, depth = connector_depth,
+                              height = total_height, type = "male");
 
             rotate([ 0, 0, 90 ]) translate([ 0, conn_shift, 0 ])
-                conns(base = base_width, width = trapezium_major, depth = connector_depth, height = height,
-                      tolerance = conn_tolerance, type = "female");
+                dovetail_conn(base = base_width, width = trapezium_major, depth = connector_depth,
+                              height = total_height, tolerance = connector_tolerance, type = "female");
 
-            rotate([ 0, 0, 180 ]) translate([ 0, conn_shift, 0 ])
-                conns(base = base_width, width = trapezium_major, depth = connector_depth, height = height,
-                      tolerance = conn_tolerance, type = "female", tie_slot = tie_slot);
+            rotate([ 0, 0, 180 ]) translate([ 0, conn_shift, 0 ]) dovetail_conn(
+                base = base_width, width = trapezium_major, depth = connector_depth, height = total_height,
+                tolerance = connector_tolerance, type = "female", tie_slot = tie_slot);
         }
-        // Main body hole for the battery cell
+        // Main body cavity for the battery cell to fit into
+        translate([ 0, 0, retainer_thickness ])
+            cylinder(r = diameter / 2 + cell_tolerance / 2, h = height + zFite, $fn = 64);
+        // Main body access hole to be able to connect the battery cell
         translate([ 0, 0, -zFite / 2 ])
-            cylinder(r = cell_diameter / 2 + cell_tolerance / 2, h = height + zFite, $fn = 64);
+            cylinder(r = diameter / 2 - retainer_radius, h = height + retainer_thickness + zFite, $fn = 64);
+
+        // Wire track cutouts
+        rotate([ 0, 0, 0 ]) translate([ 0, 0, retainer_thickness / 2 ])
+            cube([ wire_cut, base_width * 2, retainer_thickness + zFite ], center = true);
+        rotate([ 0, 0, 90 ]) translate([ 0, 0, retainer_thickness / 2 ])
+            cube([ wire_cut, base_width * 2, retainer_thickness + zFite ], center = true);
     }
 }
 
 /**
- * @brief Generate a connector for a battery holder
+ * @brief Generate a male / female dovetail connector
  * @param base Base width of the connector
  * @param width Width of the connector
  * @param depth Depth of the connector
@@ -99,7 +102,7 @@ module battery_holder(cell_diameter, height, thickness, connector_depth, tab_rad
  * @param tie_slot Whether to keep a slot for a cable tie
  */
 
-module conns(base, width, depth, height, tolerance = 0, type = "male", tie_slot = true)
+module dovetail_conn(base, width, depth, height, tolerance = 0, type = "male", tie_slot = true)
 {
     cover = tie_slot ? 0 : depth;
     if (type == "female")
