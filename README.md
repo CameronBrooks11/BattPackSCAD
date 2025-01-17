@@ -39,6 +39,6 @@ See `examples/simple_example.scad`.
 
 <img src="images/example_single.PNG" alt="example_simple" width="40%">
 
-## Acknowledgement
+## Acknowledgements
 
 This library is a continuation of the work [kartchnb/battery_lib](https://github.com/kartchnb/battery_lib) and [thingiverse/delboy711/Parametric-18650-battery-grid](https://www.thingiverse.com/thing:3026658).
