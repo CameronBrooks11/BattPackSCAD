@@ -25,19 +25,19 @@ battery_type = "18650";
 battery_holder(diameter=BatteryLib_TotalDiameter(battery_type), height=8, wall_thickness=3, retainer_thickness=2);
 ```
 
-<img src="images/example_simple.PNG" alt="design_top_view" width="20%">
+<img src="images/example_simple.PNG" alt="design_top_view" width="30%">
 
 ### 2x3 Grid Example
 
 See `examples/gridconfig_2x3_example.scad`.
 
-<img src="images/example_2x3.PNG" alt="example_2x3" width="30%">
+<img src="images/example_2x3.PNG" alt="example_2x3" width="40%">
 
 ### Simple Example
 
 See `examples/simple_example.scad`.
 
-<img src="images/example_single.PNG" alt="example_simple" width="30%">
+<img src="images/example_single.PNG" alt="example_simple" width="40%">
 
 ## Acknowledgement
 
