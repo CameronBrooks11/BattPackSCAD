@@ -127,12 +127,16 @@ module dovetail_conn(base, width, depth, height, tolerance = 0, type = "male", t
  * @param cells_x Number of cells in the x direction
  * @param cells_y Number of cells in the y direction
  * @param width Width of the cell
- * @param tolerance Tolerance for the cell
+ * @param tolerance Tolerance of connectors
  */
-module batteryHolderConfig(cells_x, cells_y, width, tolerance = 0)
+module batteryHolderConfig(cells_x, cells_y, width, connector_tolerance = 0.2)
 {
+    cx_shift = (width / 2 + connector_tolerance / 2) * (cells_x - 1);
+    cy_shift = (width / 2 + connector_tolerance / 2) * (cells_y - 1);
     for (i = [0:cells_x - 1])
         for (j = [0:cells_y - 1])
             // Generate the grid of cells and connectors
-            translate([ (width + tolerance / 2) * i, (width + tolerance / 2) * j, 0 ]) children();
+            translate([
+                (width + connector_tolerance / 2) * i - cx_shift, (width + connector_tolerance / 2) * j - cy_shift, 0
+            ]) children();
 }
