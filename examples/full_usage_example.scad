@@ -17,8 +17,8 @@ retainer_rad = 1.5;   // retainer_radius radius
 
 wire_cut_width = 6 + 2; // Width of the wire, my nickel strips are 6mm wide, add 2mm for clearance
 
-conn_tol = 0.15; // Tolerance between the connectors
-cell_tol = 0.15; // Tolerance between the cell and holder
+connector_allowance = 0.15; // Allowance between the connectors
+cell_allowance = 0.15; // Allowance between the cell and holder
 
 retaining_tabs = true;  // Retaining retainer for the battery
 cable_tie_slots = true; // Cable tie slots for the battery holder
@@ -28,5 +28,5 @@ cells_y = 2; // Number of cells in y direction
 
 battery_holder(diameter = batt_dia, height = holder_height, wall_thickness = wall_thick,
                retainer_thickness = retainer_thick, retainer_radius = retainer_rad, connector_depth = conn_depth,
-               wire_cut = wire_cut_width, cell_tolerance = cell_tol, connector_tolerance = conn_tol,
+               wire_cut = wire_cut_width, cell_allowance = cell_allowance, connector_allowance = connector_allowance,
                retainer = retaining_tabs, tie_slot = cable_tie_slots);
