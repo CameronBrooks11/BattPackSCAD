@@ -31,7 +31,7 @@ box_allowance = 0.3;        // Allowance for the box
 render_export_box = false;     // Export the model
 render_export_holder = true; // Export the holder
 
-render_xsec = false; // Render the cross-section
+render_xsec = true; // Render the cross-section
 
 if (!render_export_box && !render_export_holder)
 {
@@ -81,7 +81,7 @@ module render_battery_box()
                                flange_width = flange_width, mounting_hole_diameter = mounting_hole_diameter,
                                box_wall_thickness = box_wall_thickness, box_floor_thickness = box_floor_thickness,
                                box_allowance = box_allowance);
-            translate([ 500, 0, 0 ]) cube([ 1000, 1000, 1000 ], center = true);
+            translate([ 0, -500, 0 ]) cube([ 1000, 1000, 1000 ], center = true);
         }
     else
     {

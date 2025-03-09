@@ -33,8 +33,8 @@ zFite = $preview ? 0.1 : 0; // z-fighting avoidance for preview
  * @param tie_slot Whether to include a slot for a cable tie
  */
 module battery_holder(diameter, height, wall_thickness, retainer_thickness, retainer_radius = undef,
-                      connector_depth = undef, wire_cut = undef, cell_allowance = 0.2, connector_allowance = 0.2,
-                      retainer = true, tie_slot = true)
+                      connector_depth = undef, wire_cut = undef, arc_cutout = true, cell_allowance = 0.2,
+                      connector_allowance = 0.2, retainer = true, tie_slot = true)
 {
 
     retainer_radius = is_undef(retainer_radius) ? diameter * 0.1 : retainer_radius; // retainer_radius radius
@@ -76,6 +76,7 @@ module battery_holder(diameter, height, wall_thickness, retainer_thickness, reta
                 base = base_width, width = trapezium_major, depth = connector_depth, height = total_height,
                 allowance = connector_allowance, type = "female", tie_slot = tie_slot);
         }
+
         // Main body cavity for the battery cell to fit into
         translate([ 0, 0, retainer_thickness ])
             cylinder(r = diameter / 2 + cell_allowance / 2, h = height + zFite, $fn = 64);
@@ -84,10 +85,19 @@ module battery_holder(diameter, height, wall_thickness, retainer_thickness, reta
             cylinder(r = diameter / 2 - retainer_radius, h = height + retainer_thickness + zFite, $fn = 64);
 
         // Wire track cutouts
-        rotate([ 0, 0, 0 ]) translate([ 0, 0, retainer_thickness / 2 ])
-            cube([ wire_cut, base_width * 2, retainer_thickness + zFite ], center = true);
-        rotate([ 0, 0, 90 ]) translate([ 0, 0, retainer_thickness / 2 ])
-            cube([ wire_cut, base_width * 2, retainer_thickness + zFite ], center = true);
+        for (i = [0:1])
+            rotate([ 0, 0, 90 * i ]) translate([ 0, 0, retainer_thickness / 2 ]) union()
+            {
+                translate([ 0, 0, -retainer_thickness / 2 ])
+                    cube([ wire_cut, base_width * 2, retainer_thickness * 2 ], center = true);
+
+                if (arc_cutout)
+                {
+                    translate([ 0, 0, retainer_thickness / 2 ]) rotate([ 90, 0, 0 ]) scale([ 1, 1 / 3, 1 ])
+
+                        cylinder(r = wire_cut / 2, h = base_width * 2, center = true);
+                }
+            }
     }
 }
 
@@ -152,8 +162,8 @@ module batteryHolderConfig(cells_x, cells_y, width, connector_allowance = 0.2)
  * @param box_floor_thickness Thickness of the box floor
  */
 module battery_holder_box(battery_height, battery_diameter, cells_x, cells_y, wall_thickness, retainer_thickness,
-                          connector_depth, connector_allowance, flange_width, mounting_hole_diameter, box_wall_thickness,
-                          box_floor_thickness, box_allowance)
+                          connector_depth, connector_allowance, flange_width, mounting_hole_diameter,
+                          box_wall_thickness, box_floor_thickness, box_allowance)
 {
     unit_height = battery_height + retainer_thickness * 2 + box_floor_thickness + box_allowance;
     imprint_depth = box_floor_thickness / 2;
