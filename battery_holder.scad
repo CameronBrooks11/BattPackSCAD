@@ -163,49 +163,56 @@ module batteryHolderConfig(cells_x, cells_y, width, connector_allowance = 0.2)
  */
 module battery_holder_box(battery_height, battery_diameter, cells_x, cells_y, wall_thickness, retainer_thickness,
                           connector_depth, connector_allowance, flange_width, mounting_hole_diameter,
-                          box_wall_thickness, box_floor_thickness, box_allowance)
+                          box_wall_thickness, box_floor_thickness, box_allowance, cover = false)
 {
-    unit_height = battery_height + retainer_thickness * 2 + box_floor_thickness + box_allowance;
-    imprint_depth = box_floor_thickness / 2;
-    holder_base_width = battery_diameter + wall_thickness + connector_depth;
-    holder_bounding_width = holder_base_width + connector_depth / 2 + connector_allowance / 2;
+
+    box_height = battery_height + retainer_thickness * 2 + box_floor_thickness + box_allowance; // height of the box
+
+    holder_base_width =
+        battery_diameter + wall_thickness + connector_depth; // width of the holder not including connectors
+    holder_bounding_width =
+        holder_base_width + connector_depth / 2 + connector_allowance / 2; // width of the holder including connectors
+
+    flange_thickness = box_floor_thickness; // thickness of the flange
+
+    cover_width_diff = cover ? box_wall_thickness * 2 + box_allowance : 0; // width difference for the cover
 
     // Main body of the box
-    translate([ 0, 0, unit_height / 2 - retainer_thickness * 2 - box_floor_thickness + imprint_depth ]) color("Grey")
-        difference()
+    translate([ 0, 0, box_height / 2 ]) color("Grey") difference()
     {
         union()
         {
+
             // Base shape of the box
             cube(
                 [
-                    holder_bounding_width * cells_x + box_wall_thickness * 2,
-                    holder_bounding_width * cells_y + box_wall_thickness * 2,
-                    unit_height
+                    holder_bounding_width * cells_x + box_wall_thickness * 2 + cover_width_diff,
+                    holder_bounding_width * cells_y + box_wall_thickness * 2 + cover_width_diff,
+                    box_height
                 ],
                 center = true);
 
             // Flanges for mounting the box coming off the sides at z=0
             for (i = [0:1])
             {
-
+                flange_offset = cover ? box_height - flange_thickness : 0;
                 mirror([ i, 0, 0 ]) translate([
                     holder_bounding_width * cells_x / 2 + box_wall_thickness + flange_width / 2, 0,
-                    -unit_height / 2 + box_floor_thickness / 2
+                    -box_height / 2 + box_floor_thickness / 2 +
+                    flange_offset
                 ])
 
                     difference()
                 {
                     // flange base shape
-                    cube(
-                        [ flange_width, holder_bounding_width * cells_y + box_wall_thickness * 2, box_floor_thickness ],
-                        center = true);
+                    cube([ flange_width, holder_bounding_width * cells_y + box_wall_thickness * 2, flange_thickness ],
+                         center = true);
 
                     // create one screw hole for each y cell
                     for (j = [0:cells_y - 1])
                     {
                         translate([ 0, holder_bounding_width * j - holder_bounding_width * (cells_y - 1) / 2, 0 ])
-                            cylinder(r = mounting_hole_diameter / 2, h = box_floor_thickness + zFite, center = true);
+                            cylinder(r = mounting_hole_diameter / 2, h = flange_thickness + zFite, center = true);
                     }
 
                     // cut off the sharp edges of the flange
@@ -213,7 +220,7 @@ module battery_holder_box(battery_height, battery_diameter, cells_x, cells_y, wa
                         mirror([ 0, i, 0 ]) translate(
                             [ flange_width / 2, (holder_bounding_width * cells_y + box_wall_thickness * 2) / 2, 0 ])
                             rotate([ 0, 0, 45 ])
-                                cube([ flange_width * sqrt(2), flange_width * sqrt(2), box_floor_thickness + zFite ],
+                                cube([ flange_width * sqrt(2), flange_width * sqrt(2), flange_thickness + zFite ],
                                      center = true);
                 }
             }
@@ -222,8 +229,8 @@ module battery_holder_box(battery_height, battery_diameter, cells_x, cells_y, wa
         // Cut out the middle cavity of the box
         translate([ 0, 0, box_floor_thickness ]) cube(
             [
-                holder_bounding_width * cells_x + box_allowance, holder_bounding_width * cells_y + box_allowance,
-                unit_height +
+                holder_bounding_width * cells_x + box_allowance + cover_width_diff,
+                holder_bounding_width * cells_y + box_allowance + cover_width_diff, box_height +
                 zFite
             ],
             center = true);

@@ -28,14 +28,16 @@ box_wall_thickness = 2;     // Thickness of the box walls
 box_floor_thickness = 3;    // Thickness of the box floor
 box_allowance = 0.3;        // Allowance for the box
 
-render_export_box = false;     // Export the model
-render_export_holder = true; // Export the holder
+render_export_box = false;    // Export the model
+render_export_holder = false; // Export the holder
+render_export_cover = true;  // Export the cover
 
-render_xsec = true; // Render the cross-section
+render_xsec = false; // Render the cross-section
 
-if (!render_export_box && !render_export_holder)
+if (!render_export_box && !render_export_holder && !render_export_cover)
 {
-    batteryHolderConfig(cells_x = xCells, cells_y = yCells, width = batt_dia + wall_thick + conn_depth)
+    translate([ 0, 0, retainer_thick + box_floor_thickness + box_allowance ])
+        batteryHolderConfig(cells_x = xCells, cells_y = yCells, width = batt_dia + wall_thick + conn_depth)
     {
         // Generate first battery holder model
         battery_holder(diameter = batt_dia, height = holder_height, wall_thickness = wall_thick,
@@ -52,15 +54,22 @@ if (!render_export_box && !render_export_holder)
 
     // Generate the box
     render_battery_box();
+
+    // Generate the cover
+    render_battery_box_cover();
 }
 else if (render_export_box)
 {
     // Export the model
     render_battery_box();
 }
+else if (render_export_cover)
+{
+    render_battery_box_cover();
+}
 else if (render_export_holder)
 {
-    // Generate first battery holder model
+    // Generate one battery holder model
     battery_holder(diameter = batt_dia, height = holder_height, wall_thickness = wall_thick,
                    connector_depth = conn_depth, retainer_thickness = retainer_thick);
 }
@@ -69,7 +78,7 @@ else
     echo("Invalid configuration");
 }
 
-module render_battery_box()
+module render_battery_box(cover = false)
 {
     // Generate the box
     if (render_xsec)
@@ -80,7 +89,7 @@ module render_battery_box()
                                connector_depth = conn_depth, connector_allowance = conn_allow,
                                flange_width = flange_width, mounting_hole_diameter = mounting_hole_diameter,
                                box_wall_thickness = box_wall_thickness, box_floor_thickness = box_floor_thickness,
-                               box_allowance = box_allowance);
+                               box_allowance = box_allowance, cover = cover);
             translate([ 0, -500, 0 ]) cube([ 1000, 1000, 1000 ], center = true);
         }
     else
@@ -89,6 +98,13 @@ module render_battery_box()
                            cells_y = yCells, wall_thickness = wall_thick, retainer_thickness = retainer_thick,
                            connector_depth = conn_depth, connector_allowance = conn_allow, flange_width = flange_width,
                            mounting_hole_diameter = mounting_hole_diameter, box_wall_thickness = box_wall_thickness,
-                           box_floor_thickness = box_floor_thickness, box_allowance = box_allowance);
+                           box_floor_thickness = box_floor_thickness, box_allowance = box_allowance, cover = cover);
     }
+}
+
+module render_battery_box_cover()
+{
+    // Generate the cover
+    translate([ 0, 0, batt_body_height + retainer_thick * 2 + box_floor_thickness * 2 + box_allowance * 2 ])
+        rotate([ 0, 180, 0 ]) render_battery_box(cover = true);
 }
